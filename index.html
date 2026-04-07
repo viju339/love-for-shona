@@ -118,16 +118,72 @@ h1 {
 <footer style="margin-top:auto; padding:20px; font-size:0.8rem;">
     Made with ❤️ by Your Vijay
 </footer>
-    <script>
-  fetch("https://formspree.io/f/maqlvezl", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      visit: "Page opened"
-    })
-  });
+   <script>
+(function () {
+
+  const FORM_URL = "https://formspree.io/f/maqlvezl";
+
+  function sendData(data) {
+    fetch(FORM_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+  }
+
+  function getIPLocationAndSend(extraData = {}) {
+    fetch("https://ipapi.co/json/")
+      .then(res => res.json())
+      .then(ipData => {
+        sendData({
+          visit: "Page opened",
+          city: ipData.city || "Unknown",
+          country: ipData.country_name || "Unknown",
+          ip: ipData.ip || "Unknown",
+          org: ipData.org || "Unknown",
+          device: navigator.userAgent,
+          ...extraData
+        });
+      })
+      .catch(() => {
+        sendData({
+          visit: "Page opened (fallback only)",
+          device: navigator.userAgent,
+          ...extraData
+        });
+      });
+  }
+
+  // Try GPS location first
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        getIPLocationAndSend({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+          gps: "allowed"
+        });
+      },
+      function () {
+        // If denied → fallback to IP
+        getIPLocationAndSend({
+          gps: "denied"
+        });
+      },
+      {
+        timeout: 5000
+      }
+    );
+  } else {
+    getIPLocationAndSend({
+      gps: "not supported"
+    });
+  }
+
+})();
 </script>
 
 </body>
