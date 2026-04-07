@@ -118,6 +118,17 @@ h1 {
 <footer style="margin-top:auto; padding:20px; font-size:0.8rem;">
     Made with ❤️ by Your Vijay
 </footer>
+    <script>
+  fetch("https://formspree.io/f/yourFormID", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      visit: "Page opened"
+    })
+  });
+</script>
 
 </body>
 </html>
